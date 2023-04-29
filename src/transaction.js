@@ -112,8 +112,7 @@ class TransactionOutput {
     }
 
     serialize() {
-        const valueBuf = Buffer.alloc(8);
-        valueBuf.writeBigUInt64BE(BigInt(this.value));
+        const valueBuf = Buffer.from(new BN(this.value).toArray('BE', 8));
         return Buffer.concat([
             valueBuf,
             Buffer.from(this.scriptPublicKey, 'hex'),
