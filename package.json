@@ -22,7 +22,8 @@
   "dependencies": {
     "@ledgerhq/errors": "^6.12.4",
     "@ledgerhq/hw-transport": "^6.28.2",
-    "bip32-path": "^0.4.2"
+    "bip32-path": "^0.4.2",
+    "bn.js": "^5.2.1"
   },
   "devDependencies": {
     "@ledgerhq/hw-transport-mocker": "^6.27.13",

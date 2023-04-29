@@ -1,3 +1,5 @@
+const BN = require("bn.js");
+
 class Transaction {
     constructor(txData = {}) {
         /**
@@ -62,8 +64,7 @@ class TransactionInput {
     }
 
     serialize() {
-        const valueBuf = Buffer.alloc(8);
-        valueBuf.writeBigUInt64BE(BigInt(this.value));
+        const valueBuf = Buffer.from(new BN(this.value).toArray('BE', 8));
 
         const addressTypeBuf = Buffer.alloc(1);
         addressTypeBuf.writeUInt8(this.addressType);
