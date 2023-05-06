@@ -98,7 +98,7 @@ class TransactionInput {
                 transactionId: this.prevTxId,
                 index: this.outpointIndex,
             },
-            signatureScript: `41${this.signature}01`,
+            signatureScript: this.signature ? `41${this.signature}01` : null,
             sequence: 0,
             sigOpCount: 1
         };

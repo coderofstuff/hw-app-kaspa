@@ -19,8 +19,6 @@ const P1_NEXT_SIGNATURE = 0x03;
 const P2_LAST = 0x00;
 const P2_MORE = 0x80;
 
-const MAX_PAYLOAD = 255;
-
 const LEDGER_CLA = 0xe0;
 
 const INS = {
@@ -115,8 +113,6 @@ class Kaspa {
             const input = transaction.inputs[i];
             signatureBuffer = await this.sendToDevice(INS.SIGN_TX, P1_INPUTS, input.serialize(), p2);
         }
-
-        const signatures = [];
 
         while (signatureBuffer) {
             const [hasMore, inputIndex, sigLen, ...sigBuf] = signatureBuffer;

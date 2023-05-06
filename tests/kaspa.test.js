@@ -62,7 +62,7 @@ describe("kaspa", () => {
             value: 1100000,
             addressType: 0,
             addressIndex: 0,
-            outointIndex: 0,
+            outpointIndex: 0,
         });
 
         const txout = new TransactionOutput({
