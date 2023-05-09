@@ -59,7 +59,6 @@ Sign a Kaspa transaction.
 
 ##### Parameters
 
-*   `path` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** a BIP32 path
 *   `transaction` **Transaction** from `src/transaction.js`
 
 ##### Examples
