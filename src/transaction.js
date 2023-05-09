@@ -55,6 +55,11 @@ class TransactionInput {
      */
     signature;
 
+    /**
+     * @type {str}
+     */
+    sighash;
+
     constructor(inputData = {}) {
         this.value = inputData.value;
         this.prevTxId = inputData.prevTxId;
@@ -90,6 +95,10 @@ class TransactionInput {
      */
     setSignature(signature) {
         this.signature = signature;
+    }
+
+    setSighash(sighash) {
+        this.sighash = sighash;
     }
 
     toApiJSON() {

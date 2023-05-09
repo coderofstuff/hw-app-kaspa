@@ -52,7 +52,7 @@ describe("kaspa", () => {
                 => e00601802a000000000010a1d02011a7215f668e921013eb7aac9b7e64b9ec6e757c1b648e89388c919f676aa88cac
                 <= 9000
                 => e00602002e000000000010c8e040b022362f1a303518e2b49f86f87a317c87b514ca0f3d08ad2e7cf49d08cc70000000000000
-                <= 000040ec4a7f581dc2450ab43b412a67bdfdafa6f98281f854a1508852042e41ef86695ec7f0fa36122193fa201ce783618710d65c85cf94640cb93e965f5158fd84a39000
+                <= 000040ec4a7f581dc2450ab43b412a67bdfdafa6f98281f854a1508852042e41ef86695ec7f0fa36122193fa201ce783618710d65c85cf94640cb93e965f5158fd84a32000112233445566778899aabbccddeeff00112233445566778899aabbccddeeff9000
             `)
         );
         const kaspa = new Kaspa(transport);
@@ -78,5 +78,6 @@ describe("kaspa", () => {
 
         await kaspa.signTransaction(tx);
         expect(txin.signature).toEqual("ec4a7f581dc2450ab43b412a67bdfdafa6f98281f854a1508852042e41ef86695ec7f0fa36122193fa201ce783618710d65c85cf94640cb93e965f5158fd84a3");
+        expect(txin.sighash).toEqual("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff");
     });
 });

@@ -115,13 +115,21 @@ class Kaspa {
         }
 
         while (signatureBuffer) {
-            const [hasMore, inputIndex, sigLen, ...sigBuf] = signatureBuffer;
+            const [hasMore, inputIndex, sigLen, ...signatureAndSighash] = signatureBuffer;
+            const sigBuf = signatureAndSighash.slice(0, sigLen);
+            const sighashLen = signatureAndSighash[64];
+            const sighashBuf = signatureAndSighash.slice(65, 65 + sighashLen);
 
             if (sigLen != 64) {
                 throw new Error(`Expected signature length is 64. Received ${sigLen} for input ${inputIndex}`);
             }
 
+            if (sighashLen != 32) {
+                throw new Error(`Expected sighash length is 32. Received ${sighashLen} for input ${inputIndex}`)
+            }
+
             transaction.inputs[inputIndex].setSignature(Buffer(sigBuf).toString("hex"));
+            transaction.inputs[inputIndex].setSighash(Buffer(sighashBuf).toString("hex"));
 
             // Keep going as long as hasMore is true-ish
             if (!hasMore) {
