@@ -117,15 +117,54 @@ class TransactionInput {
 class TransactionOutput {
     constructor(outputData = {}) {
         this.value = outputData.value;
-        this.scriptPublicKey = outputData.scriptPublicKey;
+        
+        this.addressType = outputData.addressType || null;
+        this.addressIndex = outputData.addressIndex || null;
+
+        if (this.addressType !== null && !(this.addressType === 0 || this.addressType === 1)) {
+            throw new Error(`addressType must be 0 or 1 if set`);
+        }
+
+        if (this.addressIndex !== null && (this.addressIndex < 0x00000000 || this.addressIndex > 0xFFFFFFFF)) {
+            throw new Error(`addressIndex must be between 0x00000000 and 0xFFFFFFFF`);
+        }
+
+        const hasAddressIndexAndType = Number.isInteger(this.addressType) && Number.isInteger(this.addressIndex);
+
+        if (!(this.addressType == null && this.addressIndex == null) && !(hasAddressIndexAndType)) {
+            throw new Error('addressType and addressIndex must be set together');
+        }
+
+        if (!hasAddressIndexAndType) {
+            if (!outputData.scriptPublicKey) {
+                throw new Error('Either set scriptPublicKey or both of addressType and addressIndex');
+            }
+
+            // Only then do we care about the script public key
+            this.scriptPublicKey = outputData.scriptPublicKey;            
+        }
     }
 
     serialize() {
         const valueBuf = Buffer.from(new BN(this.value).toArray('BE', 8));
-        return Buffer.concat([
+        const bufferArr = [
             valueBuf,
-            Buffer.from(this.scriptPublicKey, 'hex'),
-        ]);
+        ];
+
+        if (Number.isInteger(this.addressType) && Number.isInteger(this.addressIndex)) {
+            const addressTypeBuf = Buffer.alloc(1);
+            addressTypeBuf.writeUInt8(this.addressType);
+    
+            const addressIndexBuf = Buffer.alloc(4);
+            addressIndexBuf.writeUInt32BE(this.addressIndex);
+
+            bufferArr.push(addressTypeBuf);
+            bufferArr.push(addressIndexBuf);
+        } else {
+            bufferArr.push(Buffer.from(this.scriptPublicKey, 'hex'));
+        }
+
+        return Buffer.concat(bufferArr);
     }
 
     toApiJSON() {

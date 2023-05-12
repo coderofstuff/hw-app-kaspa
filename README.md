@@ -80,19 +80,25 @@ const txin = new TransactionInput({
 });
 
 const txout = new TransactionOutput({
-    value: 1090000,
+    value: 1000000,
     scriptPublicKey: "2011a7215f668e921013eb7aac9b7e64b9ec6e757c1b648e89388c919f676aa88cac",
+});
+
+// By convention, the second output MUST be the change address
+// It MUST set both addressType and addressIndex
+const txoutchange = new TransactionOutput({
+    value: 90000,
+    addressType: 1,
+    addressIndex: 0,
 });
 
 const tx = new Transaction({
     version: 0,
     inputs: [txin],
-    outputs: [txout],
+    outputs: [txout, txoutchange],
 });
 
 kaspa.signTransaction(tx);
 ```
 
-Updates the 
-
-
+Updates the transaction by filling in the `signature` property of each `TransactionInput` in the `Transaction` object.
