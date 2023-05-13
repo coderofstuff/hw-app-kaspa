@@ -136,9 +136,26 @@ describe("TransactionOutput", () => {
         try {
             txout = new TransactionOutput({
                 value: 1090000,
-                scriptPublicKey: "2011a7215f668e921013eb7aac9b7e64b9ec6e757c1b648e89388c919f676aa88cac",
                 addressType: 1,
                 addressIndex: 5,
+            });
+        } catch (e) {
+            err = e;
+        }
+
+        expect(err).toBe(null);
+        expect(txout).not.toBe(null);
+        expect(txout.scriptPublicKey).toBeFalsy();
+    });
+
+    it("should throw no error if oaddressType and addressIndex is set both to 0", () => {
+        let err = null;
+        let txout = null;
+        try {
+            txout = new TransactionOutput({
+                value: 1090000,
+                addressType: 0,
+                addressIndex: 0,
             });
         } catch (e) {
             err = e;

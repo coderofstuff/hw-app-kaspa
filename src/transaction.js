@@ -118,8 +118,8 @@ class TransactionOutput {
     constructor(outputData = {}) {
         this.value = outputData.value;
         
-        this.addressType = outputData.addressType || null;
-        this.addressIndex = outputData.addressIndex || null;
+        this.addressType = Number.isInteger(outputData.addressType) ? outputData.addressType : null;
+        this.addressIndex = Number.isInteger(outputData.addressIndex) ? outputData.addressIndex : null;
 
         if (this.addressType !== null && !(this.addressType === 0 || this.addressType === 1)) {
             throw new Error(`addressType must be 0 or 1 if set`);
