@@ -48,7 +48,7 @@ Get Kaspa address (public key) for a BIP32 path.
 ##### Examples
 
 ```javascript
-kaspa.getAddress("44'/501'/0'").then(r => r.address)
+kaspa.getAddress("44'/111111'/0'").then(r => r.address)
 ```
 
 Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)<{address: [Buffer](https://nodejs.org/api/buffer.html)}>** an object with the address field
