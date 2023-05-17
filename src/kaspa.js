@@ -94,9 +94,6 @@ class Kaspa {
         if (!(transaction instanceof Transaction)) {
             throw new Error("transaction must be an instance of Transaction");
         }
-        // Ledger app supports only a single derivation path per call ATM
-        const pathsCountBuffer = Buffer.alloc(1);
-        pathsCountBuffer.writeUInt8(1, 0);
 
         const header = transaction.serialize();
 

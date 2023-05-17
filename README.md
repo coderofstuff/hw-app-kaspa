@@ -48,7 +48,7 @@ Get Kaspa address (public key) for a BIP32 path.
 ##### Examples
 
 ```javascript
-kaspa.getAddress("44'/501'/0'").then(r => r.address)
+kaspa.getAddress("44'/111111'/0'").then(r => r.address)
 ```
 
 Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)<{address: [Buffer](https://nodejs.org/api/buffer.html)}>** an object with the address field
@@ -80,19 +80,26 @@ const txin = new TransactionInput({
 });
 
 const txout = new TransactionOutput({
-    value: 1090000,
+    value: 1000000,
+    scriptPublicKey: "2011a7215f668e921013eb7aac9b7e64b9ec6e757c1b648e89388c919f676aa88cac",
+});
+
+// By convention, the second output MUST be the change address
+// It MUST set both addressType and addressIndex
+const txoutchange = new TransactionOutput({
+    value: 90000,
     scriptPublicKey: "2011a7215f668e921013eb7aac9b7e64b9ec6e757c1b648e89388c919f676aa88cac",
 });
 
 const tx = new Transaction({
     version: 0,
+    changeAddressType: 0,
+    changeAddressIndex: 0,
     inputs: [txin],
-    outputs: [txout],
+    outputs: [txout, txoutchange],
 });
 
 kaspa.signTransaction(tx);
 ```
 
-Updates the 
-
-
+Updates the transaction by filling in the `signature` property of each `TransactionInput` in the `Transaction` object.
