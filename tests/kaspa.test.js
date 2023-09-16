@@ -82,6 +82,27 @@ describe("kaspa", () => {
         expect(txin.signature).toEqual("ec4a7f581dc2450ab43b412a67bdfdafa6f98281f854a1508852042e41ef86695ec7f0fa36122193fa201ce783618710d65c85cf94640cb93e965f5158fd84a3");
         expect(txin.sighash).toEqual("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff");
     });
+
+    it("signMessage with simple data", async () => {
+        const expectedSignature = 'ec4a7f581dc2450ab43b412a67bdfdafa6f98281f854a1508852042e41ef86695ec7f0fa36122193fa201ce783618710d65c85cf94640cb93e965f5158fd84a3';
+        const expectedMessageHash = '00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff';
+        const transport = await openTransportReplayer(
+            RecordStore.fromString(`
+                => e00700001200000000000c48656c6c6f204b6173706121
+                <= 40${expectedSignature}20${expectedMessageHash}9000
+            `)
+        );
+        const kaspa = new Kaspa(transport);
+
+        try {
+            const { signature, messageHash } = await kaspa.signMessage('Hello Kaspa!', 0, 0);
+            expect(signature).toEqual(expectedSignature);
+            expect(messageHash).toEqual(messageHash);
+        } catch (e) {
+            console.error(e);
+            expect(e).toBe(null);
+        }
+    });
 });
 
 describe("Transaction", () => {

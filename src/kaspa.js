@@ -25,6 +25,7 @@ const INS = {
     GET_VERSION: 0x04,
     GET_ADDRESS: 0x05,
     SIGN_TX: 0x06,
+    SIGN_MESSAGE: 0x07,
 };
 
 function pathToBuffer(originalPath) {
@@ -135,6 +136,50 @@ class Kaspa {
 
             signatureBuffer = await this.sendToDevice(INS.SIGN_TX, P1_NEXT_SIGNATURE);
         }
+    }
+
+    /**
+     * Sign personal message on the device
+     * @param {String} message - the personal message string to sign. Max 120 len for Nano S, 200 len for others
+     * 
+     * @returns {Buffer} application config object
+     *
+     * @example
+     * kaspa.signMessage(message).then(r => r.version)
+     */
+    async signMessage(message, addressType, addressIndex) {
+        if (addressType !== 0 && addressType !== 1) {
+            throw new Error('Address type must be 0 or 1');
+        }
+
+        if (isNaN(addressIndex) || addressIndex < 0 || addressIndex > 0xFFFFFFFF) {
+            throw new Error('Address index must be an integer in range [0, 0xFFFFFFFF]');
+        }
+
+        const addressTypeBuf = Buffer.alloc(1);
+        addressTypeBuf.writeUInt8(addressType || 0);
+
+        const addressIndexBuf = Buffer.alloc(4);
+        addressIndexBuf.writeUInt32BE(addressIndex || 0);
+
+        const messageBuffer = Buffer.from(message);
+        const messageLenBuf = Buffer.alloc(1);
+        messageLenBuf.writeUInt8(messageBuffer.length);
+
+        const payload = Buffer.concat([
+            addressTypeBuf,
+            addressIndexBuf,
+            messageLenBuf,
+            messageBuffer,
+        ]);
+
+        const signatureBuffer = await this.sendToDevice(INS.SIGN_MESSAGE, P1_NON_CONFIRM, payload);
+        const [sigLen, ...signatureAndMessageHash] = signatureBuffer;
+        const signature = Buffer(signatureAndMessageHash.slice(0, sigLen)).toString('hex');
+        const messageHashLen = signatureAndMessageHash[64];
+        const messageHash = Buffer(signatureAndMessageHash.slice(65, 65 + messageHashLen)).toString('hex');
+
+        return { signature, messageHash };
     }
 
     /**
