@@ -1,9 +1,4 @@
 import Kaspa from './kaspa';
-import { TransactionInput, TransactionOutput, Transaction } from './transaction';
-export default {
-    Kaspa,
-    TransactionInput,
-    TransactionOutput,
-    Transaction,
-};
+export { TransactionInput, TransactionOutput, Transaction } from './transaction';
+export default Kaspa;
 //# sourceMappingURL=index.js.map
