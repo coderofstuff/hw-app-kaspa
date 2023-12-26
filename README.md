@@ -32,7 +32,7 @@ Kaspa API
 #### Examples
 
 ```javascript
-import Kaspa from "@ledgerhq/hw-app-kaspa";
+import Kaspa from "hw-app-kaspa";
 const kaspa = new Kaspa(transport);
 ```
 
@@ -63,9 +63,9 @@ Sign a Kaspa transaction.
 
 ##### Examples
 
-```javascript
-const Kaspa = require("../src/kaspa");
-const { TransactionInput, TransactionOutput, Transaction } = require("../src/transaction");
+```typescript
+import Kaspa from 'hw-app-kaspa';
+import { TransactionInput, TransactionOutput, Transaction } from 'hw-app-kaspa';
 
 ...
 
