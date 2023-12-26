@@ -1,10 +1,9 @@
-const Transport = require("@ledgerhq/hw-transport").default;
+import Transport from "@ledgerhq/hw-transport";
+import { StatusCodes } from "@ledgerhq/errors";
 
-const { StatusCodes } = require("@ledgerhq/errors");
+import { Transaction } from "./transaction";
 
 const BIP32Path = require("bip32-path");
-
-const {Transaction} = require('./transaction');
 
 // Get Address
 const P1_NON_CONFIRM = 0x00;
@@ -46,18 +45,15 @@ class Kaspa {
     /**
      * @type {Transport}
      */
-    transport = null;
+    transport: Transport;
 
-    constructor(transport) {
-        if (!(transport instanceof Transport)) {
-            throw new Error("transport must be an instance of @ledgerhq/hw-transport");
-        }
+    constructor(transport: Transport) {
         this.transport = transport;
         this.transport.decorateAppAPIMethods(this, [
             "getVersion",
             "getAddress",
             "signTransaction",
-        ]);
+        ], "");
     }
 
     /**
@@ -68,18 +64,16 @@ class Kaspa {
      * @returns {Buffer} an object with the address field
      *
      * @example
-     * kaspa.getAddress("44'/111111'/0'").then(r => r.address)
+     * kaspa.getPublicKey("44'/111111'/0'").then(r => r.address)
      */
-    async getAddress(path, display) {
+    async getPublicKey(path, display: boolean = false): Promise<Buffer> {
         const pathBuffer = pathToBuffer(path);
 
         const p1 = display ? P1_CONFIRM : P1_NON_CONFIRM;
 
-        const addressBuffer = await this.sendToDevice(INS.GET_ADDRESS, p1, pathBuffer);
+        const publicKeyBuffer = await this.sendToDevice(INS.GET_ADDRESS, p1, pathBuffer);
 
-        return {
-            address: addressBuffer,
-        };
+        return publicKeyBuffer;
     }
 
     /**
@@ -89,13 +83,9 @@ class Kaspa {
      *
      *
      * @example
-     * kaspa.signTransaction(transaction).then(r => r.signature)
+     * kaspa.signTransaction(transaction)
      */
-    async signTransaction(transaction) {
-        if (!(transaction instanceof Transaction)) {
-            throw new Error("transaction must be an instance of Transaction");
-        }
-
+    async signTransaction(transaction: Transaction): Promise<void> {
         const header = transaction.serialize();
 
         await this.sendToDevice(INS.SIGN_TX, P1_HEADER, header, P2_MORE);
@@ -104,7 +94,7 @@ class Kaspa {
             await this.sendToDevice(INS.SIGN_TX, P1_OUTPUTS, output.serialize(), P2_MORE);
         }
 
-        let signatureBuffer = null;
+        let signatureBuffer: Buffer | null = null;
 
         for (let i = 0; i < transaction.inputs.length; i++) {
             let p2 = i >= transaction.inputs.length - 1 ? P2_LAST : P2_MORE;
@@ -126,8 +116,8 @@ class Kaspa {
                 throw new Error(`Expected sighash length is 32. Received ${sighashLen} for input ${inputIndex}`)
             }
 
-            transaction.inputs[inputIndex].setSignature(Buffer(sigBuf).toString("hex"));
-            transaction.inputs[inputIndex].setSighash(Buffer(sighashBuf).toString("hex"));
+            transaction.inputs[inputIndex].setSignature(Buffer.from(sigBuf).toString("hex"));
+            transaction.inputs[inputIndex].setSighash(Buffer.from(sighashBuf).toString("hex"));
 
             // Keep going as long as hasMore is true-ish
             if (!hasMore) {
@@ -141,18 +131,16 @@ class Kaspa {
     /**
      * Sign personal message on the device
      * @param {String} message - the personal message string to sign. Max 120 len for Nano S, 200 len for others
+     * @param {0|1} addressType
+     * @param {number} addressIndex
      * 
      * @returns {Buffer} application config object
      *
      * @example
      * kaspa.signMessage(message).then(r => r.version)
      */
-    async signMessage(message, addressType, addressIndex) {
-        if (addressType !== 0 && addressType !== 1) {
-            throw new Error('Address type must be 0 or 1');
-        }
-
-        if (isNaN(addressIndex) || addressIndex < 0 || addressIndex > 0xFFFFFFFF) {
+    async signMessage(message: string, addressType: 0|1, addressIndex: number) {
+        if (addressIndex < 0 || addressIndex > 0xFFFFFFFF) {
             throw new Error('Address index must be an integer in range [0, 0xFFFFFFFF]');
         }
 
@@ -175,9 +163,9 @@ class Kaspa {
 
         const signatureBuffer = await this.sendToDevice(INS.SIGN_MESSAGE, P1_NON_CONFIRM, payload);
         const [sigLen, ...signatureAndMessageHash] = signatureBuffer;
-        const signature = Buffer(signatureAndMessageHash.slice(0, sigLen)).toString('hex');
+        const signature = Buffer.from(signatureAndMessageHash.slice(0, sigLen)).toString('hex');
         const messageHashLen = signatureAndMessageHash[64];
-        const messageHash = Buffer(signatureAndMessageHash.slice(65, 65 + messageHashLen)).toString('hex');
+        const messageHash = Buffer.from(signatureAndMessageHash.slice(65, 65 + messageHashLen)).toString('hex');
 
         return { signature, messageHash };
     }
@@ -212,4 +200,4 @@ class Kaspa {
     }
 }
 
-module.exports = Kaspa;
+export default Kaspa;

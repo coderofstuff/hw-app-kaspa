@@ -14,7 +14,7 @@ Ledger Hardware Wallet Kaspa JavaScript bindings.
 *   [Kaspa](#kaspa)
     *   [Parameters](#parameters)
     *   [Examples](#examples)
-    *   [getAddress](#getaddress)
+    *   [getPublicKey](#getaddress)
         *   [Parameters](#parameters-1)
         *   [Examples](#examples-1)
     *   [signTransaction](#signtransaction)
@@ -32,13 +32,13 @@ Kaspa API
 #### Examples
 
 ```javascript
-import Kaspa from "@ledgerhq/hw-app-kaspa";
+import Kaspa from "hw-app-kaspa";
 const kaspa = new Kaspa(transport);
 ```
 
-#### getAddress
+#### getPublicKey
 
-Get Kaspa address (public key) for a BIP32 path.
+Get Kaspa Public Key for a BIP32 path.
 
 ##### Parameters
 
@@ -48,10 +48,10 @@ Get Kaspa address (public key) for a BIP32 path.
 ##### Examples
 
 ```javascript
-kaspa.getAddress("44'/111111'/0'").then(r => r.address)
+kaspa.getPublicKey("44'/111111'/0'")
 ```
 
-Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)<{address: [Buffer](https://nodejs.org/api/buffer.html)}>** an object with the address field
+Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[Buffer](https://nodejs.org/api/buffer.html)>** the public key buffer with chain code
 
 #### signTransaction
 
@@ -63,9 +63,9 @@ Sign a Kaspa transaction.
 
 ##### Examples
 
-```javascript
-const Kaspa = require("../src/kaspa");
-const { TransactionInput, TransactionOutput, Transaction } = require("../src/transaction");
+```typescript
+import Kaspa from 'hw-app-kaspa';
+import { TransactionInput, TransactionOutput, Transaction } from 'hw-app-kaspa';
 
 ...
 
