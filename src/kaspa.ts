@@ -139,7 +139,15 @@ class Kaspa {
      * @example
      * kaspa.signMessage(message).then(r => r.version)
      */
-    async signMessage(message: string, addressType: 0|1, addressIndex: number) {
+    async signMessage(message: string, addressType?: 0|1, addressIndex?: number, account?: number) {
+        account = account ?? 0x80000000;
+        addressIndex = addressIndex ?? 0;
+        addressType = addressType ?? 0;
+
+        if (account < 0x80000000 || account > 0xFFFFFFFF) {
+            throw new Error('Account must be between 0x80000000 and 0xFFFFFFFF');
+        }
+
         if (addressIndex < 0 || addressIndex > 0xFFFFFFFF) {
             throw new Error('Address index must be an integer in range [0, 0xFFFFFFFF]');
         }
@@ -150,6 +158,9 @@ class Kaspa {
         const addressIndexBuf = Buffer.alloc(4);
         addressIndexBuf.writeUInt32BE(addressIndex || 0);
 
+        const accountBuf = Buffer.alloc(4);
+        accountBuf.writeUInt32BE(account);
+
         const messageBuffer = Buffer.from(message);
         const messageLenBuf = Buffer.alloc(1);
         messageLenBuf.writeUInt8(messageBuffer.length);
@@ -157,6 +168,7 @@ class Kaspa {
         const payload = Buffer.concat([
             addressTypeBuf,
             addressIndexBuf,
+            accountBuf,
             messageLenBuf,
             messageBuffer,
         ]);
