@@ -1,7 +1,7 @@
 import BN from "bn.js";
 export class Transaction {
     constructor(txData) {
-        var _a, _b;
+        var _a, _b, _c;
         /**
          * @type {TransactionInput[]}
          */
@@ -16,8 +16,12 @@ export class Transaction {
         this.version = txData.version;
         this.changeAddressType = (_a = txData.changeAddressType) !== null && _a !== void 0 ? _a : 0;
         this.changeAddressIndex = (_b = txData.changeAddressIndex) !== null && _b !== void 0 ? _b : 0;
+        this.account = (_c = txData.account) !== null && _c !== void 0 ? _c : 0x80000000;
         if (!(this.changeAddressType === 0 || this.changeAddressType === 1)) {
             throw new Error(`changeAddressType must be 0 or 1 if set`);
+        }
+        if (this.account < 0x80000000 || this.account > 0xFFFFFFFF) {
+            throw new Error('account must be between 0x80000000 and 0xFFFFFFFF');
         }
         if (this.changeAddressIndex < 0x00000000 || this.changeAddressIndex > 0xFFFFFFFF) {
             throw new Error(`changeAddressIndex must be between 0x00000000 and 0xFFFFFFFF`);
@@ -34,12 +38,15 @@ export class Transaction {
         changeAddressTypeBuf.writeUInt8(this.changeAddressType);
         const changeAddressIndexBuf = Buffer.alloc(4);
         changeAddressIndexBuf.writeUInt32BE(this.changeAddressIndex);
+        const accountBuf = Buffer.alloc(4);
+        accountBuf.writeUInt32BE(this.account);
         return Buffer.concat([
             versionBuf,
             outputLenBuf,
             inputLenBuf,
             changeAddressTypeBuf,
             changeAddressIndexBuf,
+            accountBuf,
         ]);
     }
     /**

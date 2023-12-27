@@ -59,7 +59,7 @@ describe("kaspa", () => {
     it("signTransaction with simple data", async () => {
         const transport = await openTransportReplayer(
             RecordStore.fromString(`
-                => e006008009000001010102030405
+                => e00600800d00000101010203040580000000
                 <= 9000
                 => e00601802a000000000010a1d02011a7215f668e921013eb7aac9b7e64b9ec6e757c1b648e89388c919f676aa88cac
                 <= 9000
@@ -90,15 +90,20 @@ describe("kaspa", () => {
             changeAddressIndex: 0x02030405,
         });
 
-        await kaspa.signTransaction(tx);
-        expect(txin.signature).toEqual("ec4a7f581dc2450ab43b412a67bdfdafa6f98281f854a1508852042e41ef86695ec7f0fa36122193fa201ce783618710d65c85cf94640cb93e965f5158fd84a3");
-        expect(txin.sighash).toEqual("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff");
+        try {
+            await kaspa.signTransaction(tx);
+            expect(txin.signature).toEqual("ec4a7f581dc2450ab43b412a67bdfdafa6f98281f854a1508852042e41ef86695ec7f0fa36122193fa201ce783618710d65c85cf94640cb93e965f5158fd84a3");
+            expect(txin.sighash).toEqual("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff");
+        } catch (e) {
+            console.error(e);
+            expect(e).toBe(null);
+        }
     });
 
     it("signTransaction with multi inputs", async () => {
         const transport = await openTransportReplayer(
             RecordStore.fromString(`
-                => e006008009000001020102030405
+                => e00600800d00000102010203040580000000
                 <= 9000
                 => e00601802a000000000010a1d02011a7215f668e921013eb7aac9b7e64b9ec6e757c1b648e89388c919f676aa88cac
                 <= 9000
@@ -141,18 +146,23 @@ describe("kaspa", () => {
             changeAddressIndex: 0x02030405,
         });
 
-        await kaspa.signTransaction(tx);
-        expect(txin1.signature).toEqual("ec4a7f581dc2450ab43b412a67bdfdafa6f98281f854a1508852042e41ef86695ec7f0fa36122193fa201ce783618710d65c85cf94640cb93e965f5158fd84a3");
-        expect(txin1.sighash).toEqual("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff");
+        try {
+            await kaspa.signTransaction(tx);
+            expect(txin1.signature).toEqual("ec4a7f581dc2450ab43b412a67bdfdafa6f98281f854a1508852042e41ef86695ec7f0fa36122193fa201ce783618710d65c85cf94640cb93e965f5158fd84a3");
+            expect(txin1.sighash).toEqual("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff");
 
-        expect(txin2.signature).toEqual("b33f7f581dc2450ab43b412a67bdfdafa6f98281f854a1508852042e41ef86695ec7f0fa36122193fa201ce783618710d65c85cf94640cb93e965f5158fd84a3");
-        expect(txin2.sighash).toEqual("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff");
+            expect(txin2.signature).toEqual("b33f7f581dc2450ab43b412a67bdfdafa6f98281f854a1508852042e41ef86695ec7f0fa36122193fa201ce783618710d65c85cf94640cb93e965f5158fd84a3");
+            expect(txin2.sighash).toEqual("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff");
+        } catch (e) {
+            console.error(e);
+            expect(e).toBe(null);
+        }
     });
 
     it("signTransaction should always have sigLen = 64", async () => {
         const transport = await openTransportReplayer(
             RecordStore.fromString(`
-                => e006008009000001010102030405
+                => e00600800d00000101010203040580000000
                 <= 9000
                 => e00601802a000000000010a1d02011a7215f668e921013eb7aac9b7e64b9ec6e757c1b648e89388c919f676aa88cac
                 <= 9000
@@ -189,12 +199,15 @@ describe("kaspa", () => {
         } catch (e) {
             err = e;
         }
+
+        expect(err.name).not.toBe('RecordStoreWrongAPDU');
+        expect(err).not.toBe(null);
     });
 
     it("signTransaction should always have sighashLen = 32", async () => {
         const transport = await openTransportReplayer(
             RecordStore.fromString(`
-                => e006008009000001010102030405
+                => e00600800d00000101010203040580000000
                 <= 9000
                 => e00601802a000000000010a1d02011a7215f668e921013eb7aac9b7e64b9ec6e757c1b648e89388c919f676aa88cac
                 <= 9000
@@ -231,6 +244,9 @@ describe("kaspa", () => {
         } catch (e) {
             err = e;
         }
+
+        expect(err.name).not.toBe('RecordStoreWrongAPDU');
+        expect(err).not.toBe(null);
     });
 
     it("Transaction should set default change address index and type", () => {
@@ -266,7 +282,7 @@ describe("kaspa", () => {
         const expectedMessageHash = '00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff';
         const transport = await openTransportReplayer(
             RecordStore.fromString(`
-                => e00700001200000000000c48656c6c6f204b6173706121
+                => e0070000160000000000800000000c48656c6c6f204b6173706121
                 <= 40${expectedSignature}20${expectedMessageHash}9000
             `)
         );
@@ -282,12 +298,12 @@ describe("kaspa", () => {
         }
     });
 
-    it("signMessage with simple data", async () => {
+    it("signMessage requires valid address index", async () => {
         const expectedSignature = 'ec4a7f581dc2450ab43b412a67bdfdafa6f98281f854a1508852042e41ef86695ec7f0fa36122193fa201ce783618710d65c85cf94640cb93e965f5158fd84a3';
         const expectedMessageHash = '00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff';
         const transport = await openTransportReplayer(
             RecordStore.fromString(`
-                => e00700001200000000000c48656c6c6f204b6173706121
+                => e00700001600000000008000000000c48656c6c6f204b6173706121
                 <= 40${expectedSignature}20${expectedMessageHash}9000
             `)
         );
@@ -303,6 +319,61 @@ describe("kaspa", () => {
         }
 
         expect(err).not.toBe(null);
+    });
+
+    it("signMessage requires valid account", async () => {
+        const expectedSignature = 'ec4a7f581dc2450ab43b412a67bdfdafa6f98281f854a1508852042e41ef86695ec7f0fa36122193fa201ce783618710d65c85cf94640cb93e965f5158fd84a3';
+        const expectedMessageHash = '00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff';
+        const transport = await openTransportReplayer(
+            RecordStore.fromString(`
+                => e00700001600000000008000000000c48656c6c6f204b6173706121
+                <= 40${expectedSignature}20${expectedMessageHash}9000
+            `)
+        );
+        const kaspa = new Kaspa(transport);
+
+        let err: any = null;
+        try {
+            const { signature, messageHash } = await kaspa.signMessage('Hello Kaspa!', 0, 0, 0x80000000 - 1);
+            expect(signature).toEqual(expectedSignature);
+            expect(messageHash).toEqual(messageHash);
+        } catch (e) {
+            err = e;
+        }
+
+        expect(err).not.toBe(null);
+
+        err = null;
+        try {
+            const { signature, messageHash } = await kaspa.signMessage('Hello Kaspa!', 0, 0, 0xFFFFFFFF + 1);
+            expect(signature).toEqual(expectedSignature);
+            expect(messageHash).toEqual(messageHash);
+        } catch (e) {
+            err = e;
+        }
+
+        expect(err).not.toBe(null);
+    });
+
+    it("signMessage sets default values for index and account", async () => {
+        const expectedSignature = 'ec4a7f581dc2450ab43b412a67bdfdafa6f98281f854a1508852042e41ef86695ec7f0fa36122193fa201ce783618710d65c85cf94640cb93e965f5158fd84a3';
+        const expectedMessageHash = '00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff';
+        const transport = await openTransportReplayer(
+            RecordStore.fromString(`
+                => e00700001600000000008000000000c48656c6c6f204b6173706121
+                <= 40${expectedSignature}20${expectedMessageHash}9000
+            `)
+        );
+        const kaspa = new Kaspa(transport);
+
+        let err: any = null;
+        try {
+            const { signature, messageHash } = await kaspa.signMessage('Hello Kaspa!');
+            expect(signature).toEqual(expectedSignature);
+            expect(messageHash).toEqual(messageHash);
+        } catch (e) {
+            err = e;
+        }
     });
 });
 
@@ -329,7 +400,7 @@ describe("Transaction", () => {
             changeAddressIndex: 0x02030405
         });
 
-        const expectation = Buffer.from([0x00, 0x00, 0x01, 0x01, 0x01, 0x02, 0x03, 0x04, 0x05]);
+        const expectation = Buffer.from([0x00, 0x00, 0x01, 0x01, 0x01, 0x02, 0x03, 0x04, 0x05, 0x80, 0x00, 0x00, 0x00]);
 
         expect(tx.serialize().equals(expectation)).toBeTruthy();
     });
@@ -356,6 +427,37 @@ describe("Transaction", () => {
                 outputs: [txout],
                 changeAddressType: 2,
                 changeAddressIndex: 0x02030405
+            });
+        } catch (e) {
+            err = e;
+        }
+
+        expect(err).not.toBe(null);
+    });
+
+    it("should check that account is in 0x80000000 and 0xFFFFFFFF", () => {
+        const txin = new TransactionInput({
+            prevTxId: "40b022362f1a303518e2b49f86f87a317c87b514ca0f3d08ad2e7cf49d08cc70",
+            value: 1100000,
+            addressType: 0,
+            addressIndex: 0,
+            outpointIndex: 0,
+        });
+
+        const txout = new TransactionOutput({
+            value: 1090000,
+            scriptPublicKey: "2011a7215f668e921013eb7aac9b7e64b9ec6e757c1b648e89388c919f676aa88cac",
+        });
+
+        let err: any = null;
+        try {
+            new Transaction({
+                version: 0,
+                inputs: [txin],
+                outputs: [txout],
+                changeAddressType: 0,
+                changeAddressIndex: 0x02030405,
+                account: 0x80000000 - 1,
             });
         } catch (e) {
             err = e;

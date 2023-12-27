@@ -14,12 +14,14 @@ export declare class Transaction {
     version: number;
     changeAddressType: number;
     changeAddressIndex: number;
+    account: number;
     constructor(txData: {
         inputs: TransactionInput[];
         outputs: TransactionOutput[];
         version: number;
         changeAddressType?: number;
         changeAddressIndex?: number;
+        account?: number;
     });
     serialize(): Buffer;
     /**

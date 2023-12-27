@@ -39,7 +39,7 @@ declare class Kaspa {
      * @example
      * kaspa.signMessage(message).then(r => r.version)
      */
-    signMessage(message: string, addressType: 0 | 1, addressIndex: number): Promise<{
+    signMessage(message: string, addressType?: 0 | 1, addressIndex?: number, account?: number): Promise<{
         signature: string;
         messageHash: string;
     }>;

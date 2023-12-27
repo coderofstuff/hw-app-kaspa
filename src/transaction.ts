@@ -16,8 +16,9 @@ export class Transaction {
     version: number;
     changeAddressType: number;
     changeAddressIndex: number;
+    account: number;
 
-    constructor(txData: {inputs: TransactionInput[], outputs: TransactionOutput[], version: number, changeAddressType?: number, changeAddressIndex?: number}) {
+    constructor(txData: {inputs: TransactionInput[], outputs: TransactionOutput[], version: number, changeAddressType?: number, changeAddressIndex?: number, account?: number}) {
         /**
          * @type {TransactionInput[]}
          */
@@ -33,9 +34,14 @@ export class Transaction {
 
         this.changeAddressType = txData.changeAddressType ?? 0;
         this.changeAddressIndex = txData.changeAddressIndex ?? 0;
+        this.account = txData.account ?? 0x80000000;
 
         if (!(this.changeAddressType === 0 || this.changeAddressType === 1)) {
             throw new Error(`changeAddressType must be 0 or 1 if set`);
+        }
+        
+        if (this.account < 0x80000000 || this.account > 0xFFFFFFFF) {
+            throw new Error('account must be between 0x80000000 and 0xFFFFFFFF');
         }
 
         if (this.changeAddressIndex < 0x00000000 || this.changeAddressIndex > 0xFFFFFFFF) {
@@ -59,12 +65,16 @@ export class Transaction {
         const changeAddressIndexBuf = Buffer.alloc(4);
         changeAddressIndexBuf.writeUInt32BE(this.changeAddressIndex);
 
+        const accountBuf = Buffer.alloc(4);
+        accountBuf.writeUInt32BE(this.account);
+
         return Buffer.concat([
             versionBuf,
             outputLenBuf,
             inputLenBuf,
             changeAddressTypeBuf,
             changeAddressIndexBuf,
+            accountBuf,
         ]);
     }
 
