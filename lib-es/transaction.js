@@ -1,4 +1,3 @@
-import BN from "bn.js";
 export class Transaction {
     constructor(txData) {
         var _a, _b, _c;
@@ -75,7 +74,7 @@ export class TransactionInput {
         this.sighash = null;
     }
     serialize() {
-        const valueBuf = Buffer.from(new BN(this.value).toArray('BE', 8));
+        const valueBuf = Buffer.from(toBigEndianHex(this.value), 'hex');
         const addressTypeBuf = Buffer.alloc(1);
         addressTypeBuf.writeUInt8(this.addressType);
         const addressIndexBuf = Buffer.alloc(4);
@@ -122,7 +121,7 @@ export class TransactionOutput {
         this.scriptPublicKey = outputData.scriptPublicKey;
     }
     serialize() {
-        const valueBuf = Buffer.from(new BN(this.value).toArray('BE', 8));
+        const valueBuf = Buffer.from(toBigEndianHex(this.value), 'hex');
         return Buffer.concat([
             valueBuf,
             Buffer.from(this.scriptPublicKey, 'hex'),
@@ -137,6 +136,11 @@ export class TransactionOutput {
             },
         };
     }
+}
+export function toBigEndianHex(numberToConvert) {
+    let baseStr = "0000000000000000";
+    baseStr += numberToConvert.toString(16);
+    return baseStr.substring(baseStr.length - 16, baseStr.length);
 }
 export default {
     Transaction,

@@ -1,5 +1,3 @@
-import BN from "bn.js";
-
 type TransactionApiJSON = {
     transaction: {
         version: number,
@@ -123,7 +121,7 @@ export class TransactionInput {
     }
 
     serialize(): Buffer {
-        const valueBuf = Buffer.from(new BN(this.value).toArray('BE', 8));
+        const valueBuf = Buffer.from(toBigEndianHex(this.value), 'hex');
 
         const addressTypeBuf = Buffer.alloc(1);
         addressTypeBuf.writeUInt8(this.addressType);
@@ -191,7 +189,7 @@ export class TransactionOutput {
     }
 
     serialize(): Buffer {
-        const valueBuf: Buffer = Buffer.from(new BN(this.value).toArray('BE', 8));
+        const valueBuf: Buffer = Buffer.from(toBigEndianHex(this.value), 'hex');
         return Buffer.concat([
             valueBuf,
             Buffer.from(this.scriptPublicKey, 'hex'),
@@ -207,6 +205,14 @@ export class TransactionOutput {
             },
         };
     }
+}
+
+export function toBigEndianHex(numberToConvert: number) {
+    let baseStr = "0000000000000000";
+
+    baseStr += numberToConvert.toString(16);
+
+    return baseStr.substring(baseStr.length - 16, baseStr.length);
 }
 
 export default {

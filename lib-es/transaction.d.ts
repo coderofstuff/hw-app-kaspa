@@ -79,6 +79,7 @@ export declare class TransactionOutput {
     serialize(): Buffer;
     toApiJSON(): TransactionOutputApiJSON;
 }
+export declare function toBigEndianHex(numberToConvert: number): string;
 declare const _default: {
     Transaction: typeof Transaction;
     TransactionInput: typeof TransactionInput;

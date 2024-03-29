@@ -527,6 +527,30 @@ describe("Transaction", () => {
     });
 });
 
+describe("TransactionInput", () => {
+    it("should allow for highest possible kaspa value", () => {
+        let err: any = null;
+
+        try {
+            const txin1 = new TransactionInput({
+                prevTxId: "40b022362f1a303518e2b49f86f87a317c87b514ca0f3d08ad2e7cf49d08cc70",
+                value: 18446744073709551615,
+                addressType: 0,
+                addressIndex: 0,
+                outpointIndex: 0,
+            });
+
+            txin1.serialize();
+
+            txin1.toApiJSON();
+        } catch (e) {
+            err = e;
+        }
+
+        expect(err).toBe(null);
+    })
+});
+
 describe("TransactionOutput", () => {
     it("should throw no error if only scriptPublicKey and value is set", () => {
         let err: any = null;
@@ -583,5 +607,23 @@ describe("TransactionOutput", () => {
         }
 
         expect(err).not.toBe(null);
+    });
+
+    it("should allow for highest possible kaspa value", () => {
+        let err: any = null;
+        try {
+            const output = new TransactionOutput({
+                value: 18446744073709551615,
+                scriptPublicKey: "2011a7215f668e921013eb7aac9b7e64b9ec6e757c1b648e89388c919f676aa88cac",
+            });
+
+            output.serialize();
+
+            output.toApiJSON();
+        } catch (e) {
+            err = e;
+        }
+
+        expect(err).toBe(null);
     });
 });
