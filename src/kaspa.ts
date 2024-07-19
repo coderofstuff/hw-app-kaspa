@@ -51,7 +51,7 @@ class Kaspa {
         this.transport = transport;
         this.transport.decorateAppAPIMethods(this, [
             "getVersion",
-            "getAddress",
+            "getPublicKey",
             "signTransaction",
         ], "");
     }
